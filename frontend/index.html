@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-g">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uprompt-ai | Analisis & Optimisasi Prompt</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>uprompt-ai</h1>
+            <p>Masukkan prompt Anda untuk mendapatkan analisis mendalam dan saran optimisasi.</p>
+        </header>
+
+        <main>
+            <form id="prompt-form">
+                
+                <div class="textarea-container">
+                    <div class="input-group">
+                        <label for="target-model">Target Model AI</label>
+                        <select id="target-model">
+                            <option value="default">Gemini (Default)</option>
+                            <option value="gpt-4o">GPT-4o</option>
+                            <option value="claude-3">Claude 3 Opus</option>
+                        </select>
+                    </div>
+                    <textarea id="prompt-input" placeholder="Contoh: Buat deskripsi produk untuk kopi robusta yang menargetkan anak muda..." required minlength="20"></textarea>
+                </div>
+                <button type="submit" id="analyze-button">
+                    <span class="button-text">Analisis Sekarang</span>
+                    <div class="spinner" style="display: none;"></div>
+                </button>
+            </form>
+
+            <div class="template-button-container">
+                <button id="open-templates-btn">Gunakan Template</button>
+            </div>
+
+            <div id="results-container" class="hidden">
+                <h2>Hasil Analisis</h2>
+                <div class="result-grid">
+                    <div class="score-card">
+                        <h3>Kejernihan</h3>
+                        <p id="clarity-score">--</p>
+                    </div>
+                    <div class="score-card">
+                        <h3>Spesifisitas</h3>
+                        <p id="specificity-score">--</p>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <h3>Teknik yang Digunakan</h3>
+                    <div id="technique-analysis"></div>
+                </div>
+
+                <div class="result-section">
+                    <h3>Potensi Ambiguitas</h3>
+                    <p id="ambiguity-potential"></p>
+                </div>
+
+                <div class="result-section">
+                    <h3>Saran Perbaikan</h3>
+                    <ul id="improvement-suggestions"></ul>
+                </div>
+
+                <div class="result-section">
+                    <h3>✨ Prompt yang Dioptimalkan</h3>
+                    <div class="optimized-prompt-container">
+                        <pre id="optimized-prompt"></pre>
+                        <button id="copy-button">Salin</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-container" class="hidden">
+                <h3>Oops! Terjadi Kesalahan</h3>
+                <p id="error-message"></p>
+            </div>
+
+            <div id="templates-modal" class="modal-overlay hidden">
+                <div class="modal-content">
+                    <button id="close-templates-btn" class="modal-close">&times;</button>
+                    <h3>Pilih Template Prompt</h3>
+                    <div id="templates-list">
+                        </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 uprompt-ai. Diberdayakan oleh AI.</p>
+        </footer>
+    </div>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
