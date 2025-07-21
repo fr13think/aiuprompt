@@ -11,3 +11,7 @@ alembic
 # Library Keamanan
 passlib[bcrypt]
 python-jose[cryptography]
+# Library validasi email untuk Pydantic
+email-validator
+# Library untuk form data login
+python-multipart

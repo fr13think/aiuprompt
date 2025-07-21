@@ -3,43 +3,45 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import Any
 
-from app import crud, models, schemas
+# --- BLOK IMPORT YANG DIPERBAIKI ---
+from app.crud import crud_user
+from app.schemas import user as user_schema, token as token_schema
 from app.api import deps
 from app.core.security import create_access_token
 
 router = APIRouter()
 
-@router.post("/register", response_model=schemas.User)
+@router.post("/register", response_model=user_schema.User)
 def register_user(
     *,
     db: Session = Depends(deps.get_db),
-    user_in: schemas.UserCreate,
+    user_in: user_schema.UserCreate,
 ) -> Any:
     """
     Buat user baru.
     """
-    user = crud.user.get_by_email(db, email=user_in.email)
+    user = crud_user.get_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(
             status_code=400,
             detail="User dengan email ini sudah ada.",
         )
-    user = crud.user.create(db, obj_in=user_in)
+    user = crud_user.create(db, obj_in=user_in)
     return user
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/login", response_model=token_schema.Token)
 def login_for_access_token(
     db: Session = Depends(deps.get_db),
     form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     """
-    OAuth2 compatible token login, get an access token for future requests
+    Login untuk mendapatkan access token.
     """
-    user = crud.user.get_by_email(db, email=form_data.username)
+    user = crud_user.get_by_email(db, email=form_data.username)
     if not user or not user.is_active:
         raise HTTPException(status_code=400, detail="Email atau password salah")
 
-    if not crud.user.verify_password(form_data.password, user.hashed_password):
+    if not crud_user.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Email atau password salah")
     
     access_token = create_access_token(

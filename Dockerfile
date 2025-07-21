@@ -1,5 +1,5 @@
 # Fase 1: Build Backend
-FROM python:3.11-slim AS backend-builder
+FROM python:3.11-slim as backend-builder
 
 WORKDIR /app
 
@@ -22,12 +22,12 @@ COPY --from=backend-builder /usr/local/lib/python3.11/site-packages /usr/local/l
 # Salin kode aplikasi dari fase builder
 COPY --from=backend-builder /app /app
 
-# Salin kode frontend
+# <<< TAMBAHKAN BARIS INI >>>
+# Salin seluruh folder frontend ke dalam image
 COPY frontend/ /app/frontend/
 
 # Ekspos port yang akan digunakan oleh Uvicorn
 EXPOSE 8000
 
 # Perintah untuk menjalankan aplikasi
-# Uvicorn akan menjalankan aplikasi FastAPI di 'main.py' dan juga menyajikan file statis dari folder 'frontend'
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

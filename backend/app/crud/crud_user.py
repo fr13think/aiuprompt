@@ -18,6 +18,7 @@ class CRUDUser(CRUDBase[User, UserCreate]):
         db.refresh(db_obj)
         return db_obj
     
+    # Fungsi ini harus ada di dalam class untuk dipanggil dengan 'self'
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return verify_password(plain_password, hashed_password)
 

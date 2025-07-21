@@ -56,6 +56,7 @@ Dibangun dengan tumpukan teknologi modern, uprompt-ai dirancang untuk menjadi ce
     docker-compose logs backend
     docker-compose down
     docker-compose up -d
+    docker-compose up --build -d
     ```
 
 5.  **Akses Aplikasi**:
