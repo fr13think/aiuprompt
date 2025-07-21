@@ -14,7 +14,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType]):
         return db.query(self.model).filter(self.model.id == id).first()
 
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
-        obj_in_data = dict(obj_in)
+        # Perbaikan ada di sini: ganti dict(obj_in) menjadi obj_in.model_dump()
+        obj_in_data = obj_in.model_dump()
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         db.commit()
