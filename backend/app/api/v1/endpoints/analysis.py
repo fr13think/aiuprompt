@@ -1,7 +1,7 @@
 import google.generativeai as genai
 from fastapi import APIRouter, HTTPException, Depends
-from ....core.config import settings
-from ....schemas.prompt import PromptAnalysisRequest, PromptAnalysisResponse
+from app.core.config import settings
+from app.schemas.prompt import PromptAnalysisRequest, PromptAnalysisResponse
 
 router = APIRouter()
 
