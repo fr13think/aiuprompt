@@ -1,6 +1,3 @@
-/**
- * Pastikan seluruh dokumen HTML sudah dimuat sebelum menjalankan JavaScript
- */
 document.addEventListener('DOMContentLoaded', () => {
 
     // === DEKLARASI ELEMEN ===
@@ -36,14 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorContainer = document.getElementById('error-container');
     const errorMessageElem = document.getElementById('error-message');
 
-    // Elemen Spesifik Hasil
-    // ... (Elemen hasil tetap sama)
+    // Elemen Spesifik Hasil (Termasuk perbaikan)
+    const clarityScoreElem = document.getElementById('clarity-score');
+    const specificityScoreElem = document.getElementById('specificity-score');
+    const techniqueAnalysisElem = document.getElementById('technique-analysis');
+    const ambiguityPotentialElem = document.getElementById('ambiguity-potential');
+    const improvementSuggestionsElem = document.getElementById('improvement-suggestions');
+    const optimizedPromptElem = document.getElementById('optimized-prompt');
     const copyButton = document.getElementById('copy-button');
 
     let userToken = null;
 
-
-    // === FUNGSI UTAMA & INSIALISASI ===
+    // === FUNGSI UTAMA & INISIALISASI ===
 
     function checkLoginStatus() {
         userToken = localStorage.getItem('userToken');
@@ -64,19 +65,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Panggil saat halaman dimuat
     checkLoginStatus();
 
-
     // === EVENT LISTENERS ===
 
-    // Event Listener utama untuk form analisis prompt
     promptForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // ... (Logika form submit sama seperti sebelumnya) ...
         const promptText = promptInput.value.trim();
         const selectedModel = targetModelSelect.value;
+
         if (promptText.length < 20) {
             showError("Input prompt terlalu pendek. Harap masukkan minimal 20 karakter.");
             return;
         }
+
         setLoadingState(true);
         hideResults();
         hideError();
@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event Listeners untuk Otentikasi
     authBtn.addEventListener('click', () => authModal.classList.remove('hidden'));
     closeAuthBtn.addEventListener('click', () => authModal.classList.add('hidden'));
     logoutBtn.addEventListener('click', () => {
@@ -139,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('register-password').value;
         try {
             await api.registerUser(email, password);
-            // Otomatis login setelah register berhasil
             const data = await api.loginUser(email, password);
             localStorage.setItem('userToken', data.access_token);
             localStorage.setItem('userEmail', email);
@@ -150,9 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /**
-     * Event listener untuk tombol 'Salin'
-     */
     copyButton.addEventListener('click', () => {
         const textToCopy = optimizedPromptElem.innerText;
         navigator.clipboard.writeText(textToCopy).then(() => {
@@ -166,13 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /**
-     * Event listener untuk membuka modal template
-     */
     openTemplatesBtn.addEventListener('click', async () => {
         try {
             const templates = await api.getTemplates();
-            templatesList.innerHTML = ''; // Kosongkan daftar
+            templatesList.innerHTML = '';
             templates.forEach(template => {
                 const item = document.createElement('div');
                 item.className = 'template-item';
@@ -188,11 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showError(error.message);
         }
     });
-
-    /**
-     * Event listener untuk menutup modal template
-     */
+    
     closeTemplatesBtn.addEventListener('click', () => templatesModal.classList.add('hidden'));
+    
     templatesModal.addEventListener('click', (e) => {
         if (e.target === templatesModal) {
             templatesModal.classList.add('hidden');
@@ -201,15 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // === FUNGSI BANTU ===
-
-    function showAuthError(message) {
-        authError.textContent = message;
-        authError.classList.remove('hidden');
-    }
-
-    function hideAuthError() {
-        authError.classList.add('hidden');
-    }
 
     function setLoadingState(isLoading) {
         analyzeButton.disabled = isLoading;
@@ -243,5 +224,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideError() {
         errorContainer.classList.add('hidden');
+    }
+    
+    function showAuthError(message) {
+        authError.textContent = message;
+        authError.classList.remove('hidden');
+    }
+
+    function hideAuthError() {
+        authError.classList.add('hidden');
     }
 });
