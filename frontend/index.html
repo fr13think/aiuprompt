@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-g">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>uprompt-ai | Analisis & Optimisasi Prompt</title>
     <link rel="stylesheet" href="assets/css/style.css">
@@ -18,16 +18,15 @@
 
         <main>
             <form id="prompt-form">
-                
+                <div class="input-group">
+                    <label for="target-model">Target Model AI</label>
+                    <select id="target-model">
+                        <option value="default">Gemini (Default)</option>
+                        <option value="gpt-4o">GPT-4o</option>
+                        <option value="claude-3">Claude 3 Opus</option>
+                    </select>
+                </div>
                 <div class="textarea-container">
-                    <div class="input-group">
-                        <label for="target-model">Target Model AI</label>
-                        <select id="target-model">
-                            <option value="default">Gemini (Default)</option>
-                            <option value="gpt-4o">GPT-4o</option>
-                            <option value="claude-3">Claude 3 Opus</option>
-                        </select>
-                    </div>
                     <textarea id="prompt-input" placeholder="Contoh: Buat deskripsi produk untuk kopi robusta yang menargetkan anak muda..." required minlength="20"></textarea>
                 </div>
                 <button type="submit" id="analyze-button">
@@ -38,6 +37,15 @@
 
             <div class="template-button-container">
                 <button id="open-templates-btn">Gunakan Template</button>
+            </div>
+
+            <div id="templates-modal" class="modal-overlay hidden">
+                <div class="modal-content">
+                    <button id="close-templates-btn" class="modal-close">&times;</button>
+                    <h3>Pilih Template Prompt</h3>
+                    <div id="templates-list">
+                        </div>
+                </div>
             </div>
 
             <div id="results-container" class="hidden">
@@ -52,22 +60,18 @@
                         <p id="specificity-score">--</p>
                     </div>
                 </div>
-
                 <div class="result-section">
                     <h3>Teknik yang Digunakan</h3>
                     <div id="technique-analysis"></div>
                 </div>
-
                 <div class="result-section">
                     <h3>Potensi Ambiguitas</h3>
                     <p id="ambiguity-potential"></p>
                 </div>
-
                 <div class="result-section">
                     <h3>Saran Perbaikan</h3>
                     <ul id="improvement-suggestions"></ul>
                 </div>
-
                 <div class="result-section">
                     <h3>✨ Prompt yang Dioptimalkan</h3>
                     <div class="optimized-prompt-container">
@@ -81,21 +85,13 @@
                 <h3>Oops! Terjadi Kesalahan</h3>
                 <p id="error-message"></p>
             </div>
-
-            <div id="templates-modal" class="modal-overlay hidden">
-                <div class="modal-content">
-                    <button id="close-templates-btn" class="modal-close">&times;</button>
-                    <h3>Pilih Template Prompt</h3>
-                    <div id="templates-list">
-                        </div>
-                </div>
-            </div>
         </main>
 
         <footer>
             <p>&copy; 2025 uprompt-ai. Diberdayakan oleh AI.</p>
         </footer>
     </div>
+    
     <script src="assets/js/api.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
