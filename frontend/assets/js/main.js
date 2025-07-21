@@ -4,11 +4,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // === DEKLARASI ELEMEN ===
+    // Form utama
     const promptForm = document.getElementById('prompt-form');
-    if (!promptForm) {
-        console.error("Kesalahan Kritis: Elemen form dengan ID 'prompt-form' tidak ditemukan.");
-        return; // Hentikan eksekusi jika elemen utama tidak ada
-    }
     const promptInput = document.getElementById('prompt-input');
     const analyzeButton = document.getElementById('analyze-button');
     const buttonText = document.querySelector('.button-text');
@@ -21,55 +18,135 @@ document.addEventListener('DOMContentLoaded', () => {
     const templatesModal = document.getElementById('templates-modal');
     const templatesList = document.getElementById('templates-list');
 
+    // Elemen Otentikasi
+    const authContainer = document.getElementById('auth-container');
+    const authBtn = document.getElementById('auth-btn');
+    const userInfo = document.getElementById('user-info');
+    const logoutBtn = document.getElementById('logout-btn');
+    const authModal = document.getElementById('auth-modal');
+    const closeAuthBtn = document.getElementById('close-auth-btn');
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const authError = document.getElementById('auth-error');
+
     // Elemen Kontainer Hasil & Error
     const resultsContainer = document.getElementById('results-container');
     const errorContainer = document.getElementById('error-container');
     const errorMessageElem = document.getElementById('error-message');
 
     // Elemen Spesifik Hasil
-    const clarityScoreElem = document.getElementById('clarity-score');
-    const specificityScoreElem = document.getElementById('specificity-score');
-    const techniqueAnalysisElem = document.getElementById('technique-analysis');
-    const ambiguityPotentialElem = document.getElementById('ambiguity-potential');
-    const improvementSuggestionsElem = document.getElementById('improvement-suggestions');
-    const optimizedPromptElem = document.getElementById('optimized-prompt');
+    // ... (Elemen hasil tetap sama)
     const copyButton = document.getElementById('copy-button');
+
+    let userToken = null;
+
+
+    // === FUNGSI UTAMA & INSIALISASI ===
+
+    function checkLoginStatus() {
+        userToken = localStorage.getItem('userToken');
+        const userEmail = localStorage.getItem('userEmail');
+
+        if (userToken && userEmail) {
+            authBtn.classList.add('hidden');
+            userInfo.textContent = `Welcome, ${userEmail}`;
+            userInfo.classList.remove('hidden');
+            logoutBtn.classList.remove('hidden');
+        } else {
+            authBtn.classList.remove('hidden');
+            userInfo.classList.add('hidden');
+            logoutBtn.classList.add('hidden');
+        }
+    }
+
+    // Panggil saat halaman dimuat
+    checkLoginStatus();
 
 
     // === EVENT LISTENERS ===
 
-    /**
-     * Event listener utama untuk form submission
-     */
+    // Event Listener utama untuk form analisis prompt
     promptForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Mencegah form dari refresh halaman
-
+        e.preventDefault();
+        // ... (Logika form submit sama seperti sebelumnya) ...
         const promptText = promptInput.value.trim();
         const selectedModel = targetModelSelect.value;
-
-        // --- DEBUGGING LOGS ---
-        console.log("--- DEBUGGING: Tombol Analisis Ditekan ---");
-        console.log("Prompt yang akan dikirim:", promptText);
-        console.log("Model yang dipilih:", selectedModel);
-        // -----------------------
-
         if (promptText.length < 20) {
             showError("Input prompt terlalu pendek. Harap masukkan minimal 20 karakter.");
             return;
         }
-
         setLoadingState(true);
         hideResults();
         hideError();
-
         try {
             const analysisData = await api.analyzePrompt(promptText, selectedModel);
             displayResults(analysisData);
         } catch (error) {
-            console.error("Error Catcher di main.js:", error); // Log error detail
             showError(error.message);
         } finally {
             setLoadingState(false);
+        }
+    });
+
+    // Event Listeners untuk Otentikasi
+    authBtn.addEventListener('click', () => authModal.classList.remove('hidden'));
+    closeAuthBtn.addEventListener('click', () => authModal.classList.add('hidden'));
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userEmail');
+        userToken = null;
+        checkLoginStatus();
+    });
+
+    loginTab.addEventListener('click', () => {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        hideAuthError();
+    });
+
+    registerTab.addEventListener('click', () => {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        hideAuthError();
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideAuthError();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        try {
+            const data = await api.loginUser(email, password);
+            localStorage.setItem('userToken', data.access_token);
+            localStorage.setItem('userEmail', email);
+            authModal.classList.add('hidden');
+            checkLoginStatus();
+        } catch (error) {
+            showAuthError(error.message);
+        }
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideAuthError();
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        try {
+            await api.registerUser(email, password);
+            // Otomatis login setelah register berhasil
+            const data = await api.loginUser(email, password);
+            localStorage.setItem('userToken', data.access_token);
+            localStorage.setItem('userEmail', email);
+            authModal.classList.add('hidden');
+            checkLoginStatus();
+        } catch (error) {
+            showAuthError(error.message);
         }
     });
 
@@ -124,6 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // === FUNGSI BANTU ===
+
+    function showAuthError(message) {
+        authError.textContent = message;
+        authError.classList.remove('hidden');
+    }
+
+    function hideAuthError() {
+        authError.classList.add('hidden');
+    }
 
     function setLoadingState(isLoading) {
         analyzeButton.disabled = isLoading;

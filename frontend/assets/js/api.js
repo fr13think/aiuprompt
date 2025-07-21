@@ -46,5 +46,36 @@ const api = {
             throw new Error('Gagal memuat template.');
         }
         return response.json();
-    }
+    },
+
+    // fungsi untuk register dan login
+    async registerUser(email, password) {
+        const response = await fetch('/api/v1/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Gagal mendaftar.');
+        }
+        return response.json();
+    },
+
+    async loginUser(email, password) {
+        const formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+
+        const response = await fetch('/api/v1/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData,
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Gagal login.');
+        }
+        return response.json();
+    },
 };
