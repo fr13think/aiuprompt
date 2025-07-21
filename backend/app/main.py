@@ -18,6 +18,7 @@ origins = [
     "http://localhost",
     "http://localhost:8000",
     # Tambahkan domain production Anda di sini nanti
+    "https://aiu-prompt.onrender.com",
 ]
 
 app.add_middleware(

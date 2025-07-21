@@ -326,6 +326,11 @@ footer {
     transition: border-left-color 0.3s, background-color 0.3s;
 }
 
+#templates-list {
+    max-height: 400px; /* Tentukan tinggi maksimal area template */
+    overflow-y: auto;  /* Tambahkan scrollbar vertikal jika konten melebihi tinggi maksimal */
+}
+
 #templates-list .template-item:hover {
     background-color: #2a2a2a;
     border-left-color: var(--secondary-color);

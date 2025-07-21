@@ -47,7 +47,15 @@ Dibangun dengan tumpukan teknologi modern, uprompt-ai dirancang untuk menjadi ce
     ```bash
     docker build -t uprompt-ai .
     docker run -p 8000:8000 uprompt-ai
+    docker-compose down
+    docker-compose up --build
+    docker-compose build backend
+    docker-compose run --rm backend python -m alembic init alembic
+    docker-compose run --rm backend python -m alembic revision --autogenerate -m "Create initial tables"
+    docker-compose run --rm backend python -m alembic upgrade head
     ```
 
 5.  **Akses Aplikasi**:
     * Buka browser Anda dan navigasikan ke `http://localhost:8000`
+
+https://djecrety.ir/

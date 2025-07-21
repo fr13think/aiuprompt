@@ -4,3 +4,10 @@ pydantic
 python-dotenv
 google-generativeai
 pydantic-settings
+# library untuk database
+sqlalchemy
+psycopg2-binary
+alembic
+# Library Keamanan
+passlib[bcrypt]
+python-jose[cryptography]
