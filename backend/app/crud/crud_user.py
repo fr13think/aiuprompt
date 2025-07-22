@@ -18,7 +18,7 @@ class CRUDUser(CRUDBase[User, UserCreate]):
         db.refresh(db_obj)
         return db_obj
     
-    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        return verify_password(plain_password, hashed_password)
+    # def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+    #     return verify_password(plain_password, hashed_password)
 
 user = CRUDUser(User)

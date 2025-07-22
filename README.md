@@ -55,7 +55,8 @@ Dibangun dengan tumpukan teknologi modern, uprompt-ai dirancang untuk menjadi ce
     docker-compose run --rm backend python -m alembic upgrade head
     docker-compose logs backend
     docker-compose down && docker-compose up -d
-    docker-compose up --build -d
+    docker-compose run --rm backend python -m alembic revision --autogenerate -m "Create user and history tables"
+    docker-compose run --rm backend python -m alembic upgrade head
     ```
 
 5.  **Akses Aplikasi**:

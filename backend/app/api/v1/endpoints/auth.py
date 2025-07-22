@@ -5,7 +5,7 @@ from typing import Any
 
 from app import crud, schemas
 from app.api import deps
-from app.core.security import create_access_token
+from app.core.security import create_access_token, verify_password # Tambah import verify_password
 
 router = APIRouter()
 
@@ -39,7 +39,8 @@ def login_for_access_token(
     if not user or not user.is_active:
         raise HTTPException(status_code=400, detail="Email atau password salah")
 
-    if not crud.user.verify_password(form_data.password, user.hashed_password):
+    # PERBAIKAN ADA DI SINI: Panggil 'verify_password' langsung
+    if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Email atau password salah")
     
     access_token = create_access_token(

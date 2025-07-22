@@ -9,8 +9,9 @@ sqlalchemy
 psycopg2-binary
 alembic
 # Library Keamanan
-passlib[bcrypt]
-python-jose[cryptography]
+passlib
+bcrypt==3.2.0
+python-jose
 # Library validasi email untuk Pydantic
 email-validator
 # Library untuk form data login
