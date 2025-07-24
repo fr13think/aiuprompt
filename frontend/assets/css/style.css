@@ -447,3 +447,37 @@ footer {
     text-align: center;
     margin-top: 1rem;
 }
+
+/* History Button */
+#history-btn {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+#history-btn:hover {
+    background-color: #2a2a2a;
+}
+
+/* History List Item */
+#history-list .history-item {
+    background-color: var(--bg-color);
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--secondary-color);
+}
+#history-list .history-item p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    margin-bottom: 0.5rem;
+}
+#history-list .history-item .history-date {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: right;
+}

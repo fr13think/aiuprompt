@@ -1,76 +1,80 @@
 import google.generativeai as genai
-from fastapi import APIRouter, HTTPException, Depends
+import json
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from sqlalchemy.orm import Session
+from google.generativeai.types import GenerationConfigDict
+
+from app import crud, models, schemas
+from app.api import deps
 from app.core.config import settings
-from app.schemas.prompt import PromptAnalysisRequest, PromptAnalysisResponse
 
 router = APIRouter()
+
+def save_history_task(db: Session, user: models.User, prompt: str, result: schemas.prompt.PromptAnalysisResponse):
+    try:
+        history_in = schemas.history.HistoryCreate(
+            prompt=prompt,
+            result=result.model_dump()
+        )
+        crud.history.create_with_owner(db=db, obj_in=history_in, owner_id=user.id)
+        print(f"Histori berhasil disimpan untuk user {user.email}")
+    except Exception as e:
+        print(f"Error (background task): Gagal menyimpan histori. User: {user.email}. Detail: {e}")
 
 # Konfigurasi API Key Google
 try:
     genai.configure(api_key=settings.GEMINI_API_KEY)
     model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
-    # Ini akan mencegah error saat startup jika API key belum diset
     model = None
     print(f"Peringatan: Gagal mengkonfigurasi Google AI. Pastikan GEMINI_API_KEY sudah benar. Error: {e}")
-
 
 def get_model():
     if not model:
         raise HTTPException(status_code=503, detail="Layanan AI tidak terkonfigurasi. Periksa API Key di server.")
     return model
 
-@router.post("/", response_model=PromptAnalysisResponse)
+@router.post("/", response_model=schemas.prompt.PromptAnalysisResponse)
 async def analyze_prompt(
-    request: PromptAnalysisRequest,
+    *,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(deps.get_db),
+    request: schemas.prompt.PromptAnalysisRequest,
+    current_user: models.User | None = Depends(deps.get_current_user_optional),
     ai_model: genai.GenerativeModel = Depends(get_model)
 ):
-    """
-    Menerima prompt dari pengguna, menganalisisnya menggunakan AI,
-    dan mengembalikan hasil analisis yang terstruktur.
-    """
+    # --- META-PROMPT DALAM BAHASA INDONESIA ---
     meta_prompt = f"""
-    Anda adalah seorang ahli "Prompt Engineering" kelas dunia dengan nama 'Uprompt AI'.
-    Tugas Anda adalah menganalisis prompt yang diberikan oleh pengguna untuk target model AI: '{request.target_model}'.
-    Berikan output HANYA dalam format JSON yang valid dan tidak ada teks lain di luar JSON.
+    Analisis prompt pengguna berikut dan berikan output HANYA dalam format JSON yang valid.
+    Objek JSON harus berisi kunci-kunci berikut dengan tipe data yang ditentukan:
+    - "clarity_score": integer antara 1 dan 10.
+    - "specificity_score": integer antara 1 dan 10.
+    - "technique_analysis": objek JSON dengan dua kunci: "detected_techniques" (sebuah list of strings) dan "explanation" (sebuah string).
+    - "ambiguity_potential": sebuah string yang menganalisis potensi ambiguitas.
+    - "improvement_suggestions": sebuah list of strings dengan saran-saran perbaikan yang konkret.
+    - "optimized_prompt": sebuah string berisi versi prompt pengguna yang sudah ditingkatkan.
+    Semua respons teks harus dalam Bahasa Indonesia.
 
-    Prompt yang perlu dianalisis:
-    ---
-    {request.prompt}
-    ---
-
-    Lakukan analisis berdasarkan struktur JSON berikut. Berikan evaluasi yang jujur dan saran yang bisa ditindaklanjuti.
-    Skor dari 1-10, di mana 1 sangat buruk dan 10 sangat baik.
-
-    {{
-      "clarity_score": <skor_kejernihan_int>,
-      "specificity_score": <skor_spesifisitas_int>,
-      "technique_analysis": {{
-        "detected_techniques": ["<nama_teknik_1>", "<nama_teknik_2>"],
-        "explanation": "<penjelasan_singkat_teknik_yang_digunakan>"
-      }},
-      "ambiguity_potential": "<analisis_potensi_ambiguitas_dan_salah_tafsir>",
-      "improvement_suggestions": [
-        "<saran_perbaikan_1_yang_konkret>",
-        "<saran_perbaikan_2_yang_konkret>",
-        "<saran_perbaikan_3_yang_konkret>"
-      ],
-      "optimized_prompt": "<tulis_ulang_prompt_pengguna_menjadi_versi_yang_lebih_baik_berdasarkan_saran_anda>"
-    }}
+    Prompt pengguna yang akan dianalisis: "{request.prompt}"
     """
     try:
-        response = await ai_model.generate_content_async(meta_prompt)
+        generation_config = GenerationConfigDict(response_mime_type="application/json")
+        response = await ai_model.generate_content_async(
+            meta_prompt,
+            generation_config=generation_config
+        )
         
-        # Ekstrak konten JSON dari respons AI
-        json_text = response.text.strip().replace("```json", "").replace("```", "")
-        
-        # Parsing string JSON menjadi objek Python
-        analysis_data = PromptAnalysisResponse.parse_raw(json_text)
+        analysis_data = schemas.prompt.PromptAnalysisResponse.model_validate_json(response.text)
+
+        if current_user:
+            background_tasks.add_task(
+                save_history_task, db, current_user, request.prompt, analysis_data
+            )
+
         return analysis_data
 
     except Exception as e:
-        print(f"Error saat berkomunikasi dengan API: {e}")
-        # Jika terjadi error, kirim respons error yang informatif
+        print(f"Error saat berkomunikasi dengan API atau memvalidasi data: {e}")
         raise HTTPException(
             status_code=500,
             detail=f"Terjadi kesalahan saat menganalisis prompt. Error: {str(e)}"

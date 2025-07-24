@@ -17,7 +17,7 @@
             <div id="auth-container">
                 <button id="auth-btn">Login / Register</button>
                 <span id="user-info" class="hidden"></span>
-                <button id="logout-btn" class="hidden">Logout</button>
+                    <button id="history-btn" class="hidden">Lihat Histori</button> <button id="logout-btn" class="hidden">Logout</button>
             </div>
         </header>
 
@@ -125,6 +125,15 @@
                         <button type="submit" class="auth-submit-btn">Register</button>
                     </form>
                     <p id="auth-error" class="auth-error hidden"></p>
+                </div>
+            </div>
+
+            <div id="history-modal" class="modal-overlay hidden">
+                <div class="modal-content">
+                    <button id="close-history-btn" class="modal-close">&times;</button>
+                    <h3>Histori Analisis Anda</h3>
+                    <div id="history-list">
+                        </div>
                 </div>
             </div>
         </main>

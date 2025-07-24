@@ -10,18 +10,24 @@ const api = {
      * @throws {Error} - Melemparkan error jika respons API tidak ok atau terjadi kesalahan jaringan.
      */
     async analyzePrompt(promptText, targetModel) {
-        debugger;
-
         const API_URL = '/api/v1/analysis/';
+        const token = localStorage.getItem('userToken'); // Ambil token dari local storage
+
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        // Jika ada token, tambahkan ke header Authorization
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers, // Gunakan headers yang sudah kita siapkan
             body: JSON.stringify({
                 prompt: promptText,
-                target_model: targetModel // Pastikan variabel ini sama dengan nama parameter
+                target_model: targetModel
             }),
         });
 
@@ -75,6 +81,24 @@ const api = {
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.detail || 'Gagal login.');
+        }
+        return response.json();
+    },
+
+    // Tambahkan fungsi ini di dalam objek `api`
+    async getHistory() {
+        const token = localStorage.getItem('userToken');
+        if (!token) throw new Error("Anda harus login untuk melihat histori.");
+
+        const response = await fetch('/api/v1/history/', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Gagal memuat histori.');
         }
         return response.json();
     },

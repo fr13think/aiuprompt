@@ -42,6 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const optimizedPromptElem = document.getElementById('optimized-prompt');
     const copyButton = document.getElementById('copy-button');
 
+    // Elemen Histori
+    const historyBtn = document.getElementById('history-btn');
+    const historyModal = document.getElementById('history-modal');
+    const closeHistoryBtn = document.getElementById('close-history-btn');
+    const historyList = document.getElementById('history-list');
+
     let userToken = null;
 
     // === FUNGSI UTAMA & INISIALISASI ===
@@ -55,10 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
             userInfo.textContent = `Welcome, ${userEmail}`;
             userInfo.classList.remove('hidden');
             logoutBtn.classList.remove('hidden');
+            historyBtn.classList.remove('hidden');
         } else {
             authBtn.classList.remove('hidden');
             userInfo.classList.add('hidden');
             logoutBtn.classList.add('hidden');
+            historyBtn.classList.add('hidden');
         }
     }
 
@@ -186,6 +194,38 @@ document.addEventListener('DOMContentLoaded', () => {
     templatesModal.addEventListener('click', (e) => {
         if (e.target === templatesModal) {
             templatesModal.classList.add('hidden');
+        }
+    });
+
+    // event listener History
+    historyBtn.addEventListener('click', async () => {
+        try {
+            const histories = await api.getHistory();
+            historyList.innerHTML = ''; // Kosongkan daftar
+            if (histories.length === 0) {
+                historyList.innerHTML = '<p>Anda belum memiliki histori analisis.</p>';
+            } else {
+                histories.forEach(item => {
+                    const historyDiv = document.createElement('div');
+                    historyDiv.className = 'history-item';
+                    const itemDate = new Date(item.created_at).toLocaleString('id-ID');
+                    historyDiv.innerHTML = `
+                        <p><strong>Prompt:</strong> ${item.prompt}</p>
+                        <p class="history-date">${itemDate}</p>
+                    `;
+                    historyList.appendChild(historyDiv);
+                });
+            }
+            historyModal.classList.remove('hidden');
+        } catch (error) {
+            showError(error.message);
+        }
+    });
+
+    closeHistoryBtn.addEventListener('click', () => historyModal.classList.add('hidden'));
+    historyModal.addEventListener('click', (e) => {
+        if (e.target === historyModal) {
+            historyModal.classList.add('hidden');
         }
     });
 
